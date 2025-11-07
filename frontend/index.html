@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Medical Learning Tree</title>
+    
+    <!-- D3.js Library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ========================================
+         HEADER SECTION
+    ========================================= -->
+    <header class="app-header">
+        <div class="header-content">
+            <h1>🏥 Interactive Medical Learning Tree</h1>
+            <p class="subtitle">Transform your medical lectures into interactive learning diagrams</p>
+        </div>
+    </header>
+
+    <!-- ========================================
+         MAIN CONTAINER
+    ========================================= -->
+    <main class="main-container">
+        
+        <!-- LEFT SIDEBAR: Upload & Controls -->
+        <aside class="sidebar-left">
+            <div class="upload-section">
+                <h2>📤 Upload PDF</h2>
+                <div class="upload-area" id="uploadArea">
+                    <input 
+                        type="file" 
+                        id="pdfInput" 
+                        accept=".pdf" 
+                        hidden
+                    >
+                    <div class="upload-icon">📄</div>
+                    <p class="upload-text">Drag & Drop PDF here</p>
+                    <p class="upload-subtext">or</p>
+                    <button class="btn-primary" id="selectFileBtn">
+                        Select PDF File
+                    </button>
+                </div>
+                
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <h3>Selected File:</h3>
+                    <p id="fileName"></p>
+                    <button class="btn-success" id="uploadBtn">
+                        🚀 Analyze PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Processing Indicator -->
+            <div class="processing-indicator" id="processingIndicator" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing your PDF...</p>
+                <small id="processingStatus">Extracting text...</small>
+            </div>
+
+            <!-- Tree Controls -->
+            <div class="tree-controls" id="treeControls" style="display: none;">
+                <h3>🎮 Tree Controls</h3>
+                <button class="btn-control" id="expandAllBtn">
+                    ➕ Expand All
+                </button>
+                <button class="btn-control" id="collapseAllBtn">
+                    ➖ Collapse All
+                </button>
+                <button class="btn-control" id="resetViewBtn">
+                    🔄 Reset View
+                </button>
+                <button class="btn-control" id="downloadJsonBtn">
+                    💾 Download JSON
+                </button>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend" id="legend" style="display: none;">
+                <h3>📊 Legend</h3>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #4A90E2;"></span>
+                    <span>Main Topic</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #7B68EE;"></span>
+                    <span>Subtopic</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #50C878;"></span>
+                    <span>Detail</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER: Tree Visualization -->
+        <section class="tree-container">
+            <div class="tree-header">
+                <h2 id="treeTitle">📚 Learning Tree</h2>
+                <div class="zoom-controls">
+                    <button class="btn-zoom" id="zoomInBtn">🔍+</button>
+                    <button class="btn-zoom" id="zoomOutBtn">🔍−</button>
+                </div>
+            </div>
+            
+            <!-- Welcome State -->
+            <div class="welcome-state" id="welcomeState">
+                <div class="welcome-content">
+                    <h2>👋 Welcome!</h2>
+                    <p>Upload a PDF medical lecture to get started</p>
+                    <div class="features">
+                        <div class="feature-item">
+                            <span class="feature-icon">🌳</span>
+                            <h4>Interactive Tree</h4>
+                            <p>Visualize your content hierarchically</p>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">💡</span>
+                            <h4>Smart Analogies</h4>
+                            <p>Understand complex concepts easily</p>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🏥</span>
+                            <h4>Clinical Context</h4>
+                            <p>Connect theory to practice</p>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">💬</span>
+                            <h4>AI Tutor</h4>
+                            <p>Ask questions about any topic</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG Container for D3.js -->
+            <svg id="treeSvg" style="display: none;"></svg>
+            
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <p>❌ No tree data available</p>
+                <small>Please upload a PDF to generate the learning tree</small>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR: Interactive Features Panel -->
+        <aside class="sidebar-right" id="sidebarRight" style="display: none;">
+            <div class="feature-panel">
+                <div class="panel-header">
+                    <h3 id="panelTitle">Select a node</h3>
+                    <button class="btn-close" id="closePanelBtn">✕</button>
+                </div>
+
+                <!-- Feature Tabs -->
+                <div class="feature-tabs">
+                    <button class="tab-btn active" data-tab="analogy">
+                        💡 Analogy
+                    </button>
+                    <button class="tab-btn" data-tab="clinical">
+                        🏥 Clinical
+                    </button>
+                    <button class="tab-btn" data-tab="chatbot">
+                        💬 Chat
+                    </button>
+                </div>
+
+                <!-- Tab Content: Analogy -->
+                <div class="tab-content active" id="analogyTab">
+                    <div class="tab-description">
+                        <p>Understand this concept through a relatable analogy</p>
+                    </div>
+                    <button class="btn-feature" id="getAnalogyBtn">
+                        Generate Analogy
+                    </button>
+                    <div class="content-display" id="analogyContent">
+                        <p class="placeholder-text">Click the button above to generate an analogy</p>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Clinical -->
+                <div class="tab-content" id="clinicalTab">
+                    <div class="tab-description">
+                        <p>Discover the clinical relevance and real-world applications</p>
+                    </div>
+                    <button class="btn-feature" id="getClinicalBtn">
+                        Get Clinical Context
+                    </button>
+                    <div class="content-display" id="clinicalContent">
+                        <p class="placeholder-text">Click the button above to get clinical context</p>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Chatbot -->
+                <div class="tab-content" id="chatbotTab">
+                    <div class="tab-description">
+                        <p>Ask questions about this topic to the AI tutor</p>
+                    </div>
+                    
+                    <!-- Chat Messages Container -->
+                    <div class="chat-container" id="chatMessages">
+                        <div class="chat-welcome">
+                            <p>💬 Start chatting about this topic!</p>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="Type your question..."
+                            class="chat-input"
+                        >
+                        <button class="btn-send" id="sendChatBtn">
+                            📤
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator for Features -->
+                <div class="feature-loading" id="featureLoading" style="display: none;">
+                    <div class="spinner-small"></div>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ========================================
+         FOOTER
+    ========================================= -->
+    <footer class="app-footer">
+        <p>Made with ❤️ for Medical Students | Powered by Gemini AI & D3.js</p>
+    </footer>
+
+    <!-- ========================================
+         TOAST NOTIFICATIONS
+    ========================================= -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ========================================
+         MODAL: Error Display
+    ========================================= -->
+    <div class="modal" id="errorModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Error</h3>
+                <button class="btn-close" onclick="closeErrorModal()">✕</button>
+            </div>
+            <div class="modal-body" id="errorMessage"></div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="closeErrorModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>

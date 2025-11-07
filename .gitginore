@@ -1,0 +1,81 @@
+# ========================================
+# .gitignore untuk IMLT Project
+# ========================================
+
+# Node Modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Variables (PENTING: Jangan commit API Key!)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+
+# Build Output (jika ada)
+dist/
+build/
+out/
+
+# Test Coverage
+coverage/
+.nyc_output/
+
+# Package Manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Uploaded Files (jika menyimpan di server)
+uploads/
+*.pdf
+
+# Database (jika ada)
+*.sqlite
+*.db
+
+# Backup Files
+*.bak
+*.backup
+*~
+
+# Mac
+.AppleDouble
+.LSOverride
+
+# Windows
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+.Trash-*
